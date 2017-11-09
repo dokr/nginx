@@ -1,15 +1,16 @@
-FROM alpine:edge
+FROM nginx:alpine
 
 MAINTAINER Chuanjian Wang <me@ckeyer.com>
 
-RUN apk add --update nginx && \
-	mkdir -p /run/nginx && \
-	rm -rf /var/cache/apk/* && \
-	ln -sf /dev/stdout /var/log/nginx/access.log && \
-	ln -sf /dev/stderr /var/log/nginx/error.log
+RUN apk add --update openssh && \
+	ssh-keygen -A && \
+	cd && \
+	mkdir -p .ssh && \
+	touch .ssh/authorized_keys && \
+	chmod 600 .ssh/authorized_keys
 
 ADD nginx/ /etc/nginx
 
-EXPOSE 80 443
+EXPOSE 80 443 22
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["sh", "-c", "/usr/sbin/sshd; nginx -g 'daemon off;'"]
